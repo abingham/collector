@@ -26,4 +26,4 @@ To check a volume, eg cyber_dojo_E58A625FB0_shark, I can do
 $ docker run --rm -it -v cyber_dojo_E58A625FB0_shark:/sandbox cyberdojo/ruby sh -c "find /sandbox/** -mtime -7"
 ```
 which will print the names of files changed in the last 7 days to stdout.
-If nothing is printed, then the volume would be deleted.
+If nothing is printed, then the volume would be deleted using [docker volume rm cyber_dojo_E58A625FB0_shark]
