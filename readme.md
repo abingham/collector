@@ -30,7 +30,7 @@ If nothing is printed, then the volume is collected using [docker volume rm cybe
 
 - - - -
 
-To test set the mtime using touch, eg to 2016 Nov 12th 13:14
+To test, set the mtime using touch, eg to 2016 Nov 12th 13:14
 ```
-$ docker run --rm -it -v cyber_dojo_E58A625FB0_shark:/sandbox cyberdojo/ruby sh -c "touch -d 201611121314 /sandbox/*"
+$ docker run --rm -it -v cyber_dojo_E58A625FB0_shark:/sandbox cyberdojo/ruby sh -c "touch -d 201611121314 /sandbox/**"
 ```
