@@ -1,6 +1,8 @@
 #!/bin/bash
 
 # [docker volume rm] all the docker volumes that have not been used in the last 7 days
+# The filter pattern cyber_dojo_ must not match the name of the katas-data-volume which is
+# cyber-dojo-katas-DATA-CONTAINER.
 
 volume_names=$(docker volume ls --quiet --filter 'name=cyber_dojo_')
 for volume_name in ${volume_names}; do
