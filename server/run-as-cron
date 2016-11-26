@@ -1,0 +1,10 @@
+#!/bin/sh
+# https://serverfault.com/questions/85893/running-a-cron-job-manually-and-immediately/85906
+
+# Use
+#    run-as-cron <command>
+# eg
+#    run-as-cron /etc/periodic/daily/collect
+
+. "/home/cron-env"
+exec /usr/bin/env -i "${SHELL}" -c ". /home/cron-env; $1"

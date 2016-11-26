@@ -1,0 +1,12 @@
+# See https://serverfault.com/questions/85893/running-a-cron-job-manually-and-immediately/85906
+# for how to create this file.
+
+USER=root
+HOSTNAME=d8e68328d6db
+SHLVL=1
+HOME=/root
+PORT=4557
+LOGNAME=root
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+SHELL=/bin/sh
+PWD=/root

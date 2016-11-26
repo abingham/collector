@@ -1,14 +1,11 @@
 #!/bin/bash
 
-# [docker volume rm] all the docker volumes that have not been used in the last 7 days
+# List all the docker volumes which have not been used for 7 days
 
 volume_names=$(docker volume ls --quiet --filter 'name=cyber_dojo_')
 for volume_name in ${volume_names}; do
-  #echo "Checking age of ${volume_name}"
   changers=$(docker run --rm -it -v ${volume_name}:/sandbox cyberdojo/collector sh -c "find /sandbox/** -mtime -7")
-  #echo "Changed:${changers}:"
   if [ "${changers}" = "" ]; then
-    #echo "Removing ${volume_name}"
-    docker volume rm ${volume_name}
+    echo ${volume_name}
   fi
 done

@@ -4,4 +4,6 @@
 
 #-----!Except these files
 
-!collect.sh
+!collect
+!cron-env
+!run-as-cron
