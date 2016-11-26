@@ -1,5 +1,4 @@
-# cyberdojo/runner exposes port 4557 ...
-FROM cyberdojo/runner
+FROM cyberdojo/docker
 MAINTAINER Jon Jagger <jon@jaggersoft.com>
 
 COPY collect /etc/periodic/daily/
