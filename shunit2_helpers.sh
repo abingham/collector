@@ -5,6 +5,8 @@ assert_equals_stderr() { assertEquals 'stderr' "$1" "`cat ${stderrF}`"; }
 assert_no_stdout() { assert_equals_stdout ""; }
 assert_no_stderr() { assert_equals_stderr ""; }
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 assert_stdout_includes()
 {
   local stdout="`cat ${stdoutF}`"
