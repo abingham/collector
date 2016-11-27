@@ -1,3 +1,4 @@
+#!/bin/bash
 
 assert_equals_stdout() { assertEquals 'stdout' "$1" "`cat ${stdoutF}`"; }
 assert_equals_stderr() { assertEquals 'stderr' "$1" "`cat ${stderrF}`"; }
@@ -9,16 +10,16 @@ assert_no_stderr() { assert_equals_stderr ""; }
 
 assert_stdout_includes()
 {
-  local stdout="`cat ${stdoutF}`"
-  if [[ "${stdout}" != *"${1}"* ]]; then
+  if ! cat ${stdoutF} | egrep -q -- "${1}"; then
     fail "expected stdout to include ${1}"
   fi
 }
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 refute_stdout_includes()
 {
-  local stdout="`cat ${stdoutF}`"
-  if [[ "${stdout}" = *"${1}"* ]]; then
+  if cat ${stdoutF} | egrep -q -- "${1}"; then
     fail "did not expect stdout to include ${1}"
   fi
 }

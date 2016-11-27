@@ -59,7 +59,6 @@ list_old_volumes()
   assertTrue $?
   for volume_name in ${volume_names}; do
     changers=$(docker run --rm -it -v ${volume_name}:/sandbox cyberdojo/collector sh -c "find /sandbox/** -mtime -7")
-    assertTrue $?
     if [ "${changers}" = "" ]; then
       echo ${volume_name}
     fi
