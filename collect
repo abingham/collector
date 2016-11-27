@@ -6,11 +6,8 @@
 
 volume_names=$(docker volume ls --quiet --filter 'name=cyber_dojo_')
 for volume_name in ${volume_names}; do
-  #echo "Checking age of ${volume_name}"
   changers=$(docker run --rm -it -v ${volume_name}:/sandbox cyberdojo/collector sh -c "find /sandbox/** -mtime -7")
-  #echo "Changed:${changers}:"
   if [ "${changers}" = "" ]; then
-    #echo "Removing ${volume_name}"
     docker volume rm ${volume_name}
   fi
 done
