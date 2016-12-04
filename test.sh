@@ -58,7 +58,12 @@ list_old_volumes()
   volume_names=$(docker volume ls --quiet --filter 'name=cyber_dojo_')
   assertTrue $?
   for volume_name in ${volume_names}; do
-    changers=$(docker run --rm -it -v ${volume_name}:/sandbox cyberdojo/collector sh -c "find /sandbox/** -mtime -7")
+    changers=$(docker run \
+      --rm \
+      --tty \
+      --volume ${volume_name}:/sandbox \
+      cyberdojo/collector \
+      sh -c "find /sandbox/** -mtime -7")
     if [ "${changers}" = "" ]; then
       echo ${volume_name}
     fi
@@ -72,14 +77,23 @@ send_into_past()
   # Artificially ages the files in the given docker volume by
   # setting their mtime to more than 7 days ago.
   volume_name=$1
-  docker run --rm -it -v ${volume_name}:/sandbox cyberdojo/collector sh -c "touch -d 201611121314 /sandbox/**"
+  docker run \
+    --rm \
+    --volume ${volume_name}:/sandbox \
+    cyberdojo/collector \
+    sh -c "touch -d 201611121314 /sandbox/**"
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 run_cron()
 {
-  docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock cyberdojo/collector sh -c "cd /home; ./run-as-cron '/etc/periodic/daily/collect'" >${stdoutF} 2>${stderrF}
+  docker run \
+    --rm \
+    --tty \
+    --volume /var/run/docker.sock:/var/run/docker.sock \
+    cyberdojo/collector \
+    sh -c "cd /home; ./run-as-cron '/etc/periodic/daily/collect'" >${stdoutF} 2>${stderrF}
   assertTrue $?
 }
 
