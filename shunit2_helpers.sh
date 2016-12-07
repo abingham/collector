@@ -1,7 +1,16 @@
 #!/bin/bash
 
-assert_equals_stdout() { assertEquals 'stdout' "$1" "`cat ${stdoutF}`"; }
-assert_equals_stderr() { assertEquals 'stderr' "$1" "`cat ${stderrF}`"; }
+assert_equals_stdout()
+{
+  stdout=$(cat ${stdoutF})
+  assertEquals 'stdout' "${1}" "${stdout}"
+}
+
+assert_equals_stderr()
+{
+  stderr=$(cat ${stderrF})
+  assertEquals 'stderr' "${1}" "${stderr}"
+}
 
 assert_no_stdout() { assert_equals_stdout ""; }
 assert_no_stderr() { assert_equals_stderr ""; }
@@ -10,8 +19,13 @@ assert_no_stderr() { assert_equals_stderr ""; }
 
 assert_stdout_includes()
 {
-  if ! cat ${stdoutF} | egrep -q -- "${1}"; then
-    fail "expected stdout to include ${1}"
+  stdout=$(cat ${stdoutF})
+  if ! echo ${stdout} | egrep -q -- "${1}"; then
+    echo "expected stdout to include ${1}"
+    echo "<stdout>"
+    echo "${stdout}"
+    echo "</stdout>"
+    fail
   fi
 }
 
@@ -19,8 +33,13 @@ assert_stdout_includes()
 
 refute_stdout_includes()
 {
-  if cat ${stdoutF} | egrep -q -- "${1}"; then
-    fail "did not expect stdout to include ${1}"
+  stdout=$(cat ${stdoutF})
+  if echo ${stdout} | egrep -q -- "${1}"; then
+    echo "did not expect stdout to include ${1}"
+    echo "<stdout>"
+    echo "${stdout}"
+    echo "</stdout>"
+    fail
   fi
 }
 

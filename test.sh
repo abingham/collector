@@ -117,7 +117,7 @@ test_volume_used_in_last_7_days_is_not_collected()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-test_volume_not_use_in_last_7_days_is_collected()
+test_volume_not_used_in_last_7_days_is_collected()
 {
   kata_id='C9A2F4B226'
   avatar_name='salmon'
