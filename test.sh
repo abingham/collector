@@ -130,6 +130,7 @@ test_volume_not_used_in_last_7_days_is_collected()
   assert_stdout_includes ${volume_name}
   refute_all_volumes_includes ${volume_name}
   refute_old_volumes_includes ${volume_name}
+  docker volume rm ${volume_name} > /dev/null
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
