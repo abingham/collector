@@ -4,14 +4,15 @@
 # The filter pattern cyber_dojo_ must not match the name of the katas-data-volume which is
 # cyber-dojo-katas-DATA-CONTAINER.
 
-echo "cyber-dojo collector running"
 volume_names=$(docker volume ls --quiet --filter 'name=cyber_dojo_')
+
+now=$(date)
 count=$(echo ${volume_names} | wc -w)
-echo "cyber-dojo collector checking ${count} volumes"
+echo "${now}: cyber-dojo collector checking ${count} volumes"
+
 for volume_name in ${volume_names}; do
   changers=$(docker run --rm -it -v ${volume_name}:/sandbox cyberdojo/collector sh -c "find /sandbox/** -mtime -7")
   if [ "${changers}" = "" ]; then
-    echo "cyber-dojo collector collecting ${volume_name}"
     docker volume rm ${volume_name}
   fi
 done
