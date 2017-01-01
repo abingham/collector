@@ -2,8 +2,9 @@ sudo: required
 services: docker
 language: generic
 
+before_script:
+    - curl -O https://raw.githubusercontent.com/cyber-dojo/ruby/master/push_and_trigger.sh
+    - chmod +x push_and_trigger.sh
+
 script:
-    - curl -O https://raw.githubusercontent.com/cyber-dojo/ruby/master/push.sh
-    - chmod +x push.sh
-    - ./pipe_build_test.sh
-    - ./push.sh
+    - ./pipe_build_test.sh && ./push_and_trigger.sh
