@@ -1,36 +1,45 @@
 #!/bin/bash
 
-assert_all_volumes_includes()
+container_pattern='cyber_dojo_avatar_volume_runner'
+
+container_name()
 {
-  volume_name=${1}
-  list_all_volumes >${stdoutF} 2>${stderrF}
-  assert_stdout_includes ${volume_name}
+  local kata_id=${1}
+  local avatar_name=${2}
+  echo "${container_pattern}_${kata_id}_${avatar_name}"
+}
+
+assert_all_containers_includes()
+{
+  local name=$(container_name $1 $2)
+  list_all_containers >${stdoutF} 2>${stderrF}
+  assert_stdout_includes ${name}
   assert_no_stderr
 }
 
-refute_all_volumes_includes()
+refute_all_containers_includes()
 {
-  volume_name=${1}
-  list_all_volumes >${stdoutF} 2>${stderrF}
-  refute_stdout_includes ${volume_name}
+  local name=$(container_name $1 $2)
+  list_all_containers >${stdoutF} 2>${stderrF}
+  refute_stdout_includes ${name}
   assert_no_stderr
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-assert_old_volumes_includes()
+assert_old_containers_includes()
 {
-  volume_name=${1}
-  list_old_volumes >${stdoutF} 2>${stderrF}
-  assert_stdout_includes ${volume_name}
+  local name=$(container_name $1 $2)
+  list_old_containers >${stdoutF} 2>${stderrF}
+  assert_stdout_includes ${name}
   assert_no_stderr
 }
 
-refute_old_volumes_includes()
+refute_old_containers_includes()
 {
-  volume_name=${1}
-  list_old_volumes >${stdoutF} 2>${stderrF}
-  refute_stdout_includes ${volume_name}
+  local name=$(container_name $1 $2)
+  list_old_containers >${stdoutF} 2>${stderrF}
+  refute_stdout_includes ${name}
   assert_no_stderr
 }
 
@@ -38,34 +47,45 @@ refute_old_volumes_includes()
 
 new_avatar()
 {
-  volume_name=${1}
-  docker volume create --name ${volume_name} > /dev/null
+  local name=$(container_name $1 $2)
+  docker run \
+    --detach \
+    --interactive \
+    --tty \
+    --name=${name} \
+    --volume /sandboxes \
+    cyberdojofoundation/gcc_assert \
+    sh -c "mkdir /sandboxes/${name} && sleep 1m" > /dev/null
+
+  assertTrue $?
+}
+
+old_avatar()
+{
+  local cid=$(docker ps --quiet --all --filter "name=${container_pattern}")
+  assertTrue $?
+  docker rm --force --volumes ${cid} > /dev/null
   assertTrue $?
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-list_all_volumes()
+list_all_containers()
 {
-  docker volume ls --quiet --filter 'name=cyber_dojo_'
+  docker ps --all --filter "name=${container_pattern}"
   assertTrue $?
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-list_old_volumes()
+list_old_containers()
 {
-  volume_names=$(docker volume ls --quiet --filter 'name=cyber_dojo_')
+  local cids=$(docker ps --quiet --all --filter "name=${container_pattern}")
   assertTrue $?
-  for volume_name in ${volume_names}; do
-    changers=$(docker run \
-      --rm \
-      --tty \
-      --volume ${volume_name}:/sandbox \
-      cyberdojo/collector \
-      sh -c "find /sandbox/** -mtime -7")
+  for cid in ${cids}; do
+    local changers=$(docker exec ${cid} sh -c "find /sandboxes/** -mtime -7")
     if [ "${changers}" = "" ]; then
-      echo ${volume_name}
+      docker ps --all --filter "name=${container_pattern}" | grep ${cid}
     fi
   done
 }
@@ -74,14 +94,13 @@ list_old_volumes()
 
 send_into_past()
 {
-  # Artificially ages the files in the given docker volume by
+  # Artificially ages the files in the given docker container by
   # setting their mtime to more than 7 days ago.
-  volume_name=$1
-  docker run \
-    --rm \
-    --volume ${volume_name}:/sandbox \
-    cyberdojo/collector \
-    sh -c "touch -d 201611121314 /sandbox/**"
+  local name=$(container_name $1 $2)
+  local cid=$(docker ps --quiet --all --filter "name=${name}")
+  assertTrue $?
+  docker exec ${cid} sh -c "touch -d 201611121314 /sandboxes/**"
+  assertTrue $?
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -90,6 +109,7 @@ run_cron()
 {
   docker run \
     --rm \
+    --interactive \
     --tty \
     --volume /var/run/docker.sock:/var/run/docker.sock \
     cyberdojo/collector \
@@ -100,37 +120,34 @@ run_cron()
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-test_volume_used_in_last_7_days_is_not_collected()
+test_container_used_in_last_7_days_is_not_collected()
 {
-  kata_id='C71B947EC3'
-  avatar_name='salmon'
-  volume_name="cyber_dojo_${kata_id}_${avatar_name}"
-  new_avatar ${volume_name}
-
-  assert_all_volumes_includes ${volume_name}
-  refute_old_volumes_includes ${volume_name}
+  local kata_id='C71B947EC3'
+  local avatar_name='salmon'
+  new_avatar ${kata_id} ${avatar_name}
+  assert_all_containers_includes ${kata_id} ${avatar_name}
+  refute_old_containers_includes ${kata_id} ${avatar_name}
   run_cron
-  assert_all_volumes_includes ${volume_name}
-  refute_old_volumes_includes ${volume_name}
-  docker volume rm ${volume_name} > /dev/null
+  assert_all_containers_includes ${kata_id} ${avatar_name}
+  refute_old_containers_includes ${kata_id} ${avatar_name}
+  old_avatar ${kata_id} ${avatar_name}
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-test_volume_not_used_in_last_7_days_is_collected()
+test_container_not_used_in_last_7_days_is_collected()
 {
-  kata_id='C9A2F4B226'
-  avatar_name='salmon'
-  volume_name="cyber_dojo_${kata_id}_${avatar_name}"
-  new_avatar ${volume_name}
-  send_into_past ${volume_name}
-  assert_all_volumes_includes ${volume_name}
-  assert_old_volumes_includes ${volume_name}
+  local kata_id='9CA2F4B226'
+  local avatar_name='salmon'
+  new_avatar ${kata_id} ${avatar_name}
+  send_into_past ${kata_id} ${avatar_name}
+  assert_all_containers_includes ${kata_id} ${avatar_name}
+  assert_old_containers_includes ${kata_id} ${avatar_name}
   run_cron
-  assert_stdout_includes ${volume_name}
-  refute_all_volumes_includes ${volume_name}
-  refute_old_volumes_includes ${volume_name}
-  docker volume rm ${volume_name} > /dev/null
+  assert_stdout_includes ${name}
+  refute_all_containers_includes ${kata_id} ${avatar_name}
+  refute_old_containers_includes ${kata_id} ${avatar_name}
+  # Do not call old_avatar() - it's container has been collected!
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
