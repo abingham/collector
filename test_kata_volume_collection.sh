@@ -80,15 +80,14 @@ list_all_volumes()
 
 list_old_volumes()
 {
-  # TODO:....
-  #local cids=$(docker ps --quiet --all --filter "name=${container_pattern}")
-  #assertTrue $?
-  #for cid in ${cids}; do
-  #  local changers=$(docker exec ${cid} sh -c "find /sandboxes/** -mtime -7")
-  #  if [ "${changers}" = "" ]; then
-  #    docker ps --all --filter "name=${container_pattern}" | grep ${cid}
+  local names=$(docker volume ls --quiet --filter "name=${volume_pattern}")
+  assertTrue $?
+  for name in ${names}; do
+  #  local days_old=$(./days_since_used_kata_volume.rb ${name})
+  #  if [ "${days_old}" -ge "7" ]; then
+  #    echo ${name}
   #  fi
-  #done
+  done
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -99,13 +98,14 @@ send_into_past()
   # setting their mtime to more than 7 days ago.
   local kata_id=$1
   local name=$(volume_name ${kata_id})
+  local sandboxes='/sandboxes'
   docker run \
     --rm \
     --interactive \
     --tty \
-    --volume ${name}:/sandboxes:rw \
+    --volume ${name}:${sandboxes}:rw \
     cyberdojo/collector \
-    sh -c "touch -d 201611121314 /sandboxes/**"
+    sh -c "touch -d 201611121314 ${sandboxes}/**"
   assertTrue $?
 }
 
@@ -119,7 +119,7 @@ run_cron()
     --tty \
     --volume /var/run/docker.sock:/var/run/docker.sock \
     cyberdojo/collector \
-    sh -c "cd /home; ./run-as-cron '/etc/periodic/daily/collect_avatar_volumes'" >${stdoutF} 2>${stderrF}
+    sh -c "cd /home; ./run-as-cron '/etc/periodic/daily/collect_kata_volumes'" >${stdoutF} 2>${stderrF}
   assertTrue $?
 }
 

@@ -4,7 +4,8 @@
 
 #-----!Except these files
 
-!rb_collect_avatar_volumes.rb
-!rb_collect_kata_volumes.rb
+!collect_avatar_volumes.rb
+!collect_kata_volumes.rb
+!days_since_used_kata_volume.rb
 !cron-env
 !run-as-cron

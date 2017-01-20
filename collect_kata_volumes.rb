@@ -1,8 +1,10 @@
 #!/usr/bin/env ruby
 
 require 'date'
+require_relative 'days_since_used_kata_volume'
 
-# Collects old docker volumes created by the DockerKataVolumeRunner
+# Collects old docker volumes created by
+# the DockerKataVolumeRunner
 # which creates a volume per kata.
 
 # - - - - - - - - - - - - - - - - - - - - -
@@ -39,31 +41,12 @@ end
 
 def collect_old_kata_volumes(kata_ids)
   kata_ids.each do |kata_id|
-    days_old = last_modified(kata_id)
-    puts "DockerKataVolumeRunner: #{kata_id} - #{days_old} days old"
-    if days_old >= 7
+    days = days_since_used_kata_volume(kata_id)
+    puts "DockerKataVolumeRunner: #{kata_id} - #{days} days old"
+    if days >= 7
       kata_collect(kata_id)
     end
   end
-end
-
-# - - - - - - - - - - - - - - - - - - - - -
-
-def last_modified(kata_id)
-  name = [ kata_pattern, kata_id ].join('_')
-  puts ":#{name}:"
-  sandboxes = "/sandboxes"
-  # find the most recently modified file. %Y == seconds since epoch
-  cmd = [ 'docker run',
-          '--rm',
-          '-it',
-          "--volume #{name}:#{sandboxes}:ro",
-          'cyberdojo/collector',
-          "sh -c 'find #{sandboxes} -type f -print0 | xargs -0 stat -c %Y | sort -rn | head -1'"
-  ].join(space = ' ')
-  sse = `#{cmd}`  # eg 1484774952
-  most_recent = Time.at(sse.to_i).to_datetime # eg 2017-01-18T21:29:12+00:00
-  (DateTime.now - most_recent).to_i # eg 1 (day)
 end
 
 # - - - - - - - - - - - - - - - - - - - - -
