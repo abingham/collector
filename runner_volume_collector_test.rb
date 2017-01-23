@@ -1,8 +1,15 @@
 require 'minitest/autorun'
 require_relative 'assert_exec'
 require_relative 'runner_volume_collector'
+require_relative 'spy_logger'
 
 class RunnerVolumeCollectorTest < MiniTest::Test
+
+  def setup
+    @spy_log = SpyLogger.new
+  end
+
+  # - - - - - - - - - - - - - - - - - - - -
 
   def test_newly_created_volume_has_id_as_set
     @kata_id = 'D1B34B6288'
@@ -63,7 +70,7 @@ class RunnerVolumeCollectorTest < MiniTest::Test
     @kata_id = '0BBE594321'
     volume.create
     begin
-      collector.collect(6)
+      collect(6)
       refute collected?
     ensure
       volume.remove
@@ -75,7 +82,7 @@ class RunnerVolumeCollectorTest < MiniTest::Test
     volume.create
     begin
       volume.start_avatar
-      collector.collect(6)
+      collect(6)
       refute collected?
     ensure
       volume.remove
@@ -87,7 +94,7 @@ class RunnerVolumeCollectorTest < MiniTest::Test
   def test_empty_volume_exactly_7_days_is_collected
     @kata_id = 'EDA4E9B752'
     volume.create
-    collector.collect(7)
+    collect(7)
     assert collected?
   end
 
@@ -95,7 +102,7 @@ class RunnerVolumeCollectorTest < MiniTest::Test
     @kata_id = '80A507E758'
     volume.create
     volume.start_avatar
-    collector.collect(7)
+    collect(7)
     assert collected?
   end
 
@@ -104,7 +111,7 @@ class RunnerVolumeCollectorTest < MiniTest::Test
   def test_empty_volume_more_than_7_days_old_is_collected
     @kata_id = '70CABA2638'
     volume.create
-    collector.collect(8)
+    collect(8)
     assert collected?
   end
 
@@ -112,7 +119,7 @@ class RunnerVolumeCollectorTest < MiniTest::Test
     @kata_id = 'E15B928D44'
     volume.create
     volume.start_avatar
-    collector.collect(8)
+    collect(8)
     assert collected?
   end
 
@@ -120,8 +127,12 @@ class RunnerVolumeCollectorTest < MiniTest::Test
 
   include AssertExec
 
+  def collect(days_in_future)
+    collector.collect({ days_in_future:days_in_future })
+  end
+
   def collected?
-    !visible?
+    !visible? && @spy_log.spied == [ @volume.name ]
   end
 
   def visible?
@@ -134,7 +145,7 @@ class RunnerVolumeCollectorTest < MiniTest::Test
 
   def collector
     volume_pattern = 'cyber_dojo_kata_volume_runner'
-    @collector ||= RunnerVolumeCollector.new(volume_pattern)
+    @collector ||= RunnerVolumeCollector.new(volume_pattern, @spy_log)
   end
 
   def volume
