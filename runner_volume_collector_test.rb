@@ -1,15 +1,8 @@
 require 'minitest/autorun'
 require_relative 'assert_exec'
 require_relative 'runner_volume_collector'
-require_relative 'spy_logger'
 
 class RunnerVolumeCollectorTest < MiniTest::Test
-
-  def setup
-    @spy_log = SpyLogger.new
-  end
-
-  # - - - - - - - - - - - - - - - - - - - -
 
   def test_newly_created_volume_has_id_as_set
     @kata_id = 'D1B34B6288'
@@ -125,14 +118,14 @@ class RunnerVolumeCollectorTest < MiniTest::Test
 
   private
 
-  include AssertExec
-
   def collect(days_in_future)
-    collector.collect({ days_in_future:days_in_future })
+    shell_cmd = 'cd /home;' +
+      "./run-as-cron /etc/periodic/daily/collect_runner_volumes.sh #{days_in_future}"
+    @log = assert_docker_exec shell_cmd
   end
 
   def collected?
-    !visible? && @spy_log.spied == [ @volume.name ]
+    !visible? && @log.strip == @volume.name
   end
 
   def visible?
@@ -144,12 +137,28 @@ class RunnerVolumeCollectorTest < MiniTest::Test
   end
 
   def collector
-    volume_pattern = 'cyber_dojo_kata_volume_runner'
-    @collector ||= RunnerVolumeCollector.new(volume_pattern, @spy_log)
+    @collector ||= RunnerVolumeCollector.new(volume_pattern)
   end
 
   def volume
     @volume ||= collector.volume(@kata_id)
   end
+
+  def volume_pattern
+    'cyber_dojo_kata_volume_runner'
+  end
+
+  def assert_docker_exec(shell_cmd)
+    cmd = [
+      'docker run',
+        '--rm',
+        '--volume /var/run/docker.sock:/var/run/docker.sock',
+        'cyberdojo/collector',
+        "sh -c '#{shell_cmd}'"
+    ].join(space = ' ')
+    assert_exec cmd
+  end
+
+  include AssertExec
 
 end

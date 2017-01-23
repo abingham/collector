@@ -1,15 +1,13 @@
 require_relative 'assert_exec'
 require_relative 'runner_volume'
-require_relative 'stdout_logger'
 
 # Collects volumes created by cyberdojo/runner docker container.
 
 class RunnerVolumeCollector
 
-  def initialize(volume_pattern, log = StdoutLogger.new)
+  def initialize(volume_pattern)
     # eg cyber_dojo_kata_volume_runner_BB6BDA27C1
     @volume_pattern = volume_pattern
-    @log = log
   end
 
   def collect(options = {})
@@ -17,7 +15,7 @@ class RunnerVolumeCollector
     max_days_unused = options[:max_days_unused] || 7
     volumes.each do |volume|
       if volume.days_unused(days_in_future) >= max_days_unused
-        log << volume.name
+        puts volume.name
         volume.remove
       end
     end
@@ -41,7 +39,7 @@ class RunnerVolumeCollector
 
   private
 
-  attr_reader :volume_pattern, :log
+  attr_reader :volume_pattern
 
   include AssertExec
 

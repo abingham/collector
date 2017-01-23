@@ -3,6 +3,9 @@ MAINTAINER Jon Jagger <jon@jaggersoft.com>
 
 COPY collect_runner_volumes.sh   /etc/periodic/daily/
 
+COPY runner_volume_collector.rb /home
+COPY runner_volume.rb           /home
+COPY assert_exec.rb             /home
 # For testing
 COPY cron-env    /home
 COPY run-as-cron /home
