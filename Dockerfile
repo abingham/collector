@@ -1,8 +1,7 @@
 FROM cyberdojo/docker
 MAINTAINER Jon Jagger <jon@jaggersoft.com>
 
-COPY collect_avatar_volumes.rb /etc/periodic/daily/
-COPY collect_kata_volumes.rb   /etc/periodic/daily/
+COPY collect_runner_volumes.sh   /etc/periodic/daily/
 
 # For testing
 COPY cron-env    /home

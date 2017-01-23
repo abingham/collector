@@ -83,8 +83,8 @@ list_old_volumes()
   local names=$(docker volume ls --quiet --filter "name=${volume_pattern}")
   assertTrue $?
   for name in ${names}; do
-  #  local days_old=$(./days_since_used_kata_volume.rb ${name})
-  #  if [ "${days_old}" -ge "7" ]; then
+  #  local days=$(./days_since_used_runner_volume.rb ${name})
+  #  if [ "${days}" -ge "7" ]; then
   #    echo ${name}
   #  fi
   done
@@ -105,7 +105,7 @@ send_into_past()
     --tty \
     --volume ${name}:${sandboxes}:rw \
     cyberdojo/collector \
-    sh -c "touch -d 201611121314 ${sandboxes}/**"
+    sh -c "touch -d 201611121314.15 ${sandboxes}"
   assertTrue $?
 }
 
