@@ -6,12 +6,13 @@ require_relative 'runner_volume'
 class RunnerVolumeCollector
 
   def initialize(volume_pattern)
-    @volume_pattern = volume_pattern # eg cyber_dojo_kata_volume_runner_BB6BDA27C1
+    # eg cyber_dojo_kata_volume_runner_BB6BDA27C1
+    @volume_pattern = volume_pattern
   end
 
-  def collect(days_into_future = 0)
+  def collect(days_in_future = 0)
     volumes.each do |volume|
-      if volume.days_unused(days_into_future) >= 7
+      if volume.days_unused(days_in_future) >= 7
         # TODO: log the removal
         volume.remove
       end

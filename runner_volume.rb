@@ -29,38 +29,30 @@ class RunnerVolume
     assert_exec "docker volume rm #{name}"
   end
 
-  def days_unused(days_into_future = 0)
-    # The number of days since the volume has been used
+  def days_unused(days_in_future = 0)
+    # The number of days since the volume has been
+    # used as if we were asking N days in the future.
+    # stat: %Y == time of last modification as seconds since Epoch
+    stat_sse_dir = "stat -c %Y #{sandboxes}"
     stat_sse_files = [
       "find #{sandboxes} -type f -print0", # print filenames, nul terminated
       '|',
         'xargs',
           '-r',        # don't run command if input is empty
           '-0',        # input is separated by nuls
-          'stat -c %Y' # %Y == seconds since epoch
+          'stat -c %Y'
     ].join(space)
-    sse_files = assert_docker_exec(stat_sse_files) # eg 1484774952 1484774964
-
-    if sse_files != ''
-      # /sandboxes is not empty
-      sse = sse_files.split.map{ |s| s.to_i }.max # eg 1484774964
-    else
-      # /sandboxes is empty
-      sse_dir = "stat -c %Y #{sandboxes}"
-      sse = assert_docker_exec(sse_dir).to_i      # eg 1484773667
-    end
-    days_unused_from_future(sse, days_into_future)
+    stat_sse = "(#{stat_sse_dir};#{stat_sse_files})"
+    all_sse = assert_docker_exec(stat_sse)          # eg 1484774952, ..., 1484774964
+    max_sse = all_sse.split.map{ |s| s.to_i }.max   # eg 1484774964
+    most_recent = Time.at(max_sse).to_datetime      # eg 2017-01-18T21:29:24+00:00
+    future = DateTime.now + days_in_future          # eg 2017-01-30T08:28:58+00:00
+    (future - most_recent).to_i                     # eg 11
   end
 
   private
 
   include AssertExec
-
-  def days_unused_from_future(sse, days_into_future) # eg 1484774964, 7
-    most_recent = Time.at(sse).to_datetime           # eg 2017-01-18T21:29:12+00:00
-    future = DateTime.now + days_into_future         # eg 2017-01-25T21:29:12+00:00
-    (future - most_recent).to_i                      # eg 7 (day)
-  end
 
   def assert_docker_exec(shell_cmd)
     cmd = [

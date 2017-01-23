@@ -27,7 +27,7 @@ class RunnerVolumeCollectorTest < MiniTest::Test
 
   # - - - - - - - - - - - - - - - - - - - -
 
-  def test_empty_volume_can_be_sent_into_future
+  def test_empty_volume_is_N_days_old_from_N_days_in_the_future
     @kata_id = '394277E714'
     volume.create
     begin
@@ -42,7 +42,7 @@ class RunnerVolumeCollectorTest < MiniTest::Test
 
   # - - - - - - - - - - - - - - - - - - - -
 
-  def test_volume_in_which_avatar_has_started_can_be_sent_into_future
+  def test_non_empty_volume_is_N_days_old_from_N_days_in_the_future
     @kata_id = '1E28CDB8FC'
     volume.create
     begin
