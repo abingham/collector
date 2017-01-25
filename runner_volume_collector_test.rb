@@ -125,6 +125,9 @@ class RunnerVolumeCollectorTest < MiniTest::Test
   end
 
   def collected?
+    # important to not do @log == @volume.name
+    # as the collection could have genuinely
+    # collected other unused volumes.
     !visible? && @log.include?(@volume.name)
   end
 
