@@ -49,6 +49,12 @@ end
 # - - - - - - - - - - - - - - - - -
 
 if ARGV[0] == 'collect'
+  # first collect all exited runner containers
+  pids = `docker ps --all --quiet --filter 'name=cyber_dojo_kata_container_runner_' --filter 'status=exited'`
+  if pids != ''
+    `docker rm #{pids}`
+  end
+  # then collect all runner volumes not used in last 7 days
   default_days_in_future  = '0'
   default_max_days_unused = '7'
   days_in_future  = (ARGV[1] || default_days_in_future ).to_i
@@ -58,10 +64,10 @@ if ARGV[0] == 'collect'
     max_days_unused:max_days_unused
   }
   # collect volumes from all runners
-  [ 'cyber_dojo_kata_container_runner_',
-    'cyber_dojo_kata_volume_runner_',
-    'cyber_dojo_avatar_volume_runner_avatar_',
-    'cyber_dojo_avatar_volume_runner_kata_'
+  [ 'cyber_dojo_kata_container_runner',
+    'cyber_dojo_kata_volume_runner',
+    'cyber_dojo_avatar_volume_runner_avatar',
+    'cyber_dojo_avatar_volume_runner_kata'
   ].each do |pattern|
     RunnerVolumeCollector.new(pattern).collect(options)
   end

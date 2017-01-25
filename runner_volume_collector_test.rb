@@ -121,11 +121,11 @@ class RunnerVolumeCollectorTest < MiniTest::Test
   def collect(days_in_future)
     shell_cmd = 'cd /home;' +
       "./run-as-cron /etc/periodic/daily/collect_runner_volumes.sh #{days_in_future}"
-    @log = assert_docker_exec shell_cmd
+    @log = assert_docker_exec(shell_cmd)
   end
 
   def collected?
-    !visible? && @log.strip == @volume.name
+    !visible? && @log.include?(@volume.name)
   end
 
   def visible?
@@ -145,7 +145,7 @@ class RunnerVolumeCollectorTest < MiniTest::Test
   end
 
   def volume_pattern
-    'cyber_dojo_kata_volume_runner_'
+    'cyber_dojo_kata_volume_runner'
   end
 
   def assert_docker_exec(shell_cmd)
