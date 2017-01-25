@@ -1,7 +1,8 @@
 require 'date'
 require_relative 'assert_exec'
 
-# Represents a volume created from a cyberdojo/runner docker container.
+# Represents a volume created from a
+# cyberdojo/runner docker container.
 
 class RunnerVolume
 
@@ -43,11 +44,16 @@ class RunnerVolume
           'stat -c %Y'
     ].join(space)
     stat_sse = "(#{stat_sse_dir};#{stat_sse_files})"
-    all_sse = assert_docker_exec(stat_sse)          # eg 1484774952, ..., 1484774964
-    max_sse = all_sse.split.map{ |s| s.to_i }.max   # eg 1484774964
-    most_recent = Time.at(max_sse).to_datetime      # eg 2017-01-18T21:29:24+00:00
-    future = DateTime.now + days_in_future          # eg 2017-01-30T08:28:58+00:00
-    (future - most_recent).to_i                     # eg 11
+    all_sse = assert_docker_exec(stat_sse)
+    # eg 1484774952, ..., 1484774964
+    max_sse = all_sse.split.map{ |s| s.to_i }.max
+    # eg 1484774964
+    most_recent = Time.at(max_sse).to_datetime
+    # eg 2017-01-18T21:29:24+00:00
+    future = DateTime.now + days_in_future
+    # eg 2017-01-30T08:28:58+00:00
+    (future - most_recent).to_i
+    # eg 11
   end
 
   private

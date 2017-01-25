@@ -145,7 +145,7 @@ class RunnerVolumeCollectorTest < MiniTest::Test
   end
 
   def volume_pattern
-    'cyber_dojo_kata_volume_runner'
+    'cyber_dojo_kata_volume_runner_'
   end
 
   def assert_docker_exec(shell_cmd)

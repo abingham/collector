@@ -1,7 +1,8 @@
 require_relative 'assert_exec'
 require_relative 'runner_volume'
 
-# Collects volumes created by cyberdojo/runner docker container.
+# Collects volumes created by
+# cyberdojo/runner docker container.
 
 class RunnerVolumeCollector
 
@@ -28,9 +29,9 @@ class RunnerVolumeCollector
   def volumes
     shell_cmd = [
       'docker volume ls',
-      '--quiet',
-      '--filter',
-      "'name=#{volume_pattern}'"
+        '--quiet',
+        '--filter',
+        "'name=#{volume_pattern}'"
     ].join(space = ' ')
     ls = assert_exec(shell_cmd)
     names = ls.split("\n")
@@ -46,9 +47,6 @@ class RunnerVolumeCollector
 end
 
 # - - - - - - - - - - - - - - - - -
-# The filter patterns must _NOT_ match the
-# name of the katas-data-volume which is
-# cyber-dojo-katas-DATA-CONTAINER.
 
 if ARGV[0] == 'collect'
   default_days_in_future  = '0'
@@ -59,9 +57,11 @@ if ARGV[0] == 'collect'
      days_in_future:days_in_future,
     max_days_unused:max_days_unused
   }
-  [ 'cyber_dojo_kata_volume_runner',
-    'cyber_dojo_avatar_volume_runner_avatar',
-    'cyber_dojo_avatar_volume_runner_kata'
+  # collect volumes from all runners
+  [ 'cyber_dojo_kata_container_runner_',
+    'cyber_dojo_kata_volume_runner_',
+    'cyber_dojo_avatar_volume_runner_avatar_',
+    'cyber_dojo_avatar_volume_runner_kata_'
   ].each do |pattern|
     RunnerVolumeCollector.new(pattern).collect(options)
   end
