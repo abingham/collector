@@ -116,6 +116,30 @@ class RunnerVolumeCollectorTest < MiniTest::Test
     assert collected?
   end
 
+  # - - - - - - - - - - - - - - - - - - - -
+
+  def test_an_exited_kata_container_is_collected
+    @kata_id = '3801A8B477'
+    name = 'cyber_dojo_kata_container_runner_' + @kata_id
+    args = [
+      '--detach',
+      "--name=#{name}",
+      '--net=none',
+      '--user=root'
+    ].join(space = ' ')
+    image_name = 'cyberdojo/collector'
+    cmd = "docker run #{args} #{image_name} sh -c 'sleep 1s'"
+    assert_exec(cmd)
+    sleep 2
+    cmd = "docker ps --all --filter name=#{name} --filter status=exited"
+    stdout,_ = assert_exec(cmd)
+    assert stdout.include?(name), stdout
+    collect(0)
+    cmd = "docker ps --all --filter name=#{name} --filter status=exited"
+    stdout,_ = assert_exec(cmd)
+    refute stdout.include?(name), stdout
+  end
+
   private
 
   def collect(days_in_future)
@@ -125,8 +149,8 @@ class RunnerVolumeCollectorTest < MiniTest::Test
   end
 
   def collected?
-    # important to not do @log == @volume.name
-    # as the collection could have genuinely
+    # not @log == @volume.name as the
+    # collection could have genuinely
     # collected other unused volumes.
     !visible? && @log.include?(@volume.name)
   end
