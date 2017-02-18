@@ -169,7 +169,7 @@ class RunnerVolumeCollectorTest < MiniTest::Test
   def collect(hours_in_future)
     shell_cmd = [
       '/home/run-as-cron',
-      '/etc/periodic/hourly/collect_runner_volumes.sh',
+      '/etc/periodic/hourly/collect_runner_volumes',
       hours_in_future
     ].join(space)
     @log = assert_docker_exec(shell_cmd)

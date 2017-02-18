@@ -4,7 +4,7 @@
 
 #-----!Except these files
 
-!collect_runner_volumes.sh
+!collect_runner_volumes
 !runner_volume_collector.rb
 !runner_volume.rb
 !assert_exec.rb

@@ -1,7 +1,7 @@
 FROM cyberdojo/docker
 MAINTAINER Jon Jagger <jon@jaggersoft.com>
 
-COPY collect_runner_volumes.sh   /etc/periodic/hourly/
+COPY collect_runner_volumes   /etc/periodic/hourly/
 
 COPY runner_volume_collector.rb /home
 COPY runner_volume.rb           /home
