@@ -1,4 +1,3 @@
-require 'date'
 require_relative 'assert_exec'
 
 # Represents a volume created from a
@@ -30,9 +29,9 @@ class RunnerVolume
     assert_exec "docker volume rm #{name}"
   end
 
-  def days_unused(days_in_future = 0)
-    # The number of days since the volume has been
-    # used as if we were asking N days in the future.
+  def hours_unused(hours_in_future = 0)
+    # The number of hours since the volume has been
+    # used as if we were asking hours_in_future.
     # stat: %Y == time of last modification as seconds since Epoch
     stat_sse_dir = "stat -c %Y #{sandboxes}"
     stat_sse_files = [
@@ -46,9 +45,10 @@ class RunnerVolume
     stat_sse = "(#{stat_sse_dir};#{stat_sse_files})"
     sse = assert_docker_exec(stat_sse)         # eg 1484774952 ... 1484774964
     max_sse = sse.split.map{ |s| s.to_i }.max  # eg 1484774964
-    most_recent = Time.at(max_sse).to_datetime # eg 2017-01-18T21:29:24+00:00
-    future = DateTime.now + days_in_future     # eg 2017-01-30T08:28:58+00:00
-    (future - most_recent).to_i                # eg 11
+    most_recent = Time.at(max_sse)             # eg 2017-01-18T21:29:24+00:00
+    secs_in_future = hours_in_future * 60 * 60 # eg 986400
+    future = Time.now + secs_in_future         # eg 2017-01-30T08:28:58+00:00
+    (future.to_i - most_recent.to_i) / 60 / 60 # eg 274 (11 days)
   end
 
   private

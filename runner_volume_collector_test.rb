@@ -27,14 +27,14 @@ class RunnerVolumeCollectorTest < MiniTest::Test
 
   # - - - - - - - - - - - - - - - - - - - -
 
-  def test_empty_volume_is_N_days_old_from_N_days_in_the_future
+  def test_empty_volume_is_N_hours_old_from_N_hours_in_the_future
     @kata_id = '394277E714'
     volume.create
     begin
       assert visible?
-      assert_equal 0, volume.days_unused(0)
-      assert_equal 7, volume.days_unused(7)
-      assert_equal 9, volume.days_unused(9)
+      assert_equal 0, volume.hours_unused(0)
+      assert_equal 7, volume.hours_unused(7)
+      assert_equal 9, volume.hours_unused(9)
     ensure
       volume.remove
     end
@@ -42,15 +42,15 @@ class RunnerVolumeCollectorTest < MiniTest::Test
 
   # - - - - - - - - - - - - - - - - - - - -
 
-  def test_non_empty_volume_is_N_days_old_from_N_days_in_the_future
+  def test_non_empty_volume_is_N_hours_old_from_N_hours_in_the_future
     @kata_id = '1E28CDB8FC'
     volume.create
     begin
       volume.start_avatar
       assert visible?
-      assert_equal 0, volume.days_unused(0)
-      assert_equal 7, volume.days_unused(7)
-      assert_equal 9, volume.days_unused(9)
+      assert_equal 0, volume.hours_unused(0)
+      assert_equal 7, volume.hours_unused(7)
+      assert_equal 9, volume.hours_unused(9)
     ensure
       volume.remove
     end
@@ -59,23 +59,23 @@ class RunnerVolumeCollectorTest < MiniTest::Test
   # - - - - - - - - - - - - - - - - - - - -
   # - - - - - - - - - - - - - - - - - - - -
 
-  def test_empty_volume_less_than_7_days_old_is_not_collected
+  def test_empty_volume_less_than_24_hours_old_is_not_collected
     @kata_id = '0BBE594321'
     volume.create
     begin
-      collect(6)
+      collect(23)
       refute collected?
     ensure
       volume.remove
     end
   end
 
-  def test_non_empty_volume_less_than_7_days_old_is_not_collected
+  def test_non_empty_volume_less_than_24_hours_old_is_not_collected
     @kata_id = '4D1B7E3418'
     volume.create
     begin
       volume.start_avatar
-      collect(6)
+      collect(23)
       refute collected?
     ensure
       volume.remove
@@ -84,35 +84,35 @@ class RunnerVolumeCollectorTest < MiniTest::Test
 
   # - - - - - - - - - - - - - - - - - - - -
 
-  def test_empty_volume_exactly_7_days_is_collected
+  def test_empty_volume_exactly_24_hours_old_is_collected
     @kata_id = 'EDA4E9B752'
     volume.create
-    collect(7)
+    collect(24)
     assert collected?
   end
 
-  def test_non_empty_volume_exactly_7_days_is_collected
+  def test_non_empty_volume_exactly_24_hours_old_is_collected
     @kata_id = '80A507E758'
     volume.create
     volume.start_avatar
-    collect(7)
+    collect(24)
     assert collected?
   end
 
   # - - - - - - - - - - - - - - - - - - - -
 
-  def test_empty_volume_more_than_7_days_old_is_collected
+  def test_empty_volume_more_than_24_hours_old_is_collected
     @kata_id = '70CABA2638'
     volume.create
-    collect(8)
+    collect(25)
     assert collected?
   end
 
-  def test_non_empty_volume_more_than_7_days_old_is_collected
+  def test_non_empty_volume_more_than_24_hours_old_is_collected
     @kata_id = 'E15B928D44'
     volume.create
     volume.start_avatar
-    collect(8)
+    collect(25)
     assert collected?
   end
 
@@ -152,25 +152,25 @@ class RunnerVolumeCollectorTest < MiniTest::Test
 
   private
 
-  def list(days_in_future)
+  def list(hours_in_future)
     shell_cmd = [
       'ruby',
       '/home/runner_volume_collector.rb',
       'list',
-      days_in_future
+      hours_in_future
     ].join(space)
     @log = assert_docker_exec(shell_cmd)
   end
 
-  def listed?(days_in_future)
-    @log.include?("#{@volume.name} #{days_in_future}")
+  def listed?(hours_in_future)
+    @log.include?("#{@volume.name} #{hours_in_future}")
   end
 
-  def collect(days_in_future)
+  def collect(hours_in_future)
     shell_cmd = [
       '/home/run-as-cron',
-      '/etc/periodic/daily/collect_runner_volumes.sh',
-      days_in_future
+      '/etc/periodic/hourly/collect_runner_volumes.sh',
+      hours_in_future
     ].join(space)
     @log = assert_docker_exec(shell_cmd)
   end

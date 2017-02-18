@@ -12,20 +12,20 @@ class RunnerVolumeCollector
   end
 
   def list(options = {})
-    days_in_future  = options[:days_in_future ] || 0
-    max_days_unused = options[:max_days_unused] || 7
+    hours_in_future  = options[:hours_in_future ] || 0
+    max_hours_unused = options[:max_hours_unused] || 24
     volumes.each do |volume|
-      days_unused = volume.days_unused(days_in_future)
-      puts "#{volume.name} #{days_unused} day(s) unused"
+      hours_unused = volume.hours_unused(hours_in_future)
+      puts "#{volume.name} #{hours_unused} hour(s) unused"
     end
   end
 
   def collect(options = {})
-    days_in_future  = options[:days_in_future ] || 0
-    max_days_unused = options[:max_days_unused] || 7
+    hours_in_future  = options[:hours_in_future ] || 0
+    max_hours_unused = options[:max_hours_unused] || 24
     volumes.each do |volume|
-      days_unused = volume.days_unused(days_in_future)
-      if days_unused >= max_days_unused
+      hours_unused = volume.hours_unused(hours_in_future)
+      if hours_unused >= max_hours_unused
         puts volume.name
         volume.remove
       end
@@ -68,14 +68,15 @@ end
 
 # - - - - - - - - - - - - - - - - -
 
-default_days_in_future  = '0'
-default_max_days_unused = '7'
-days_in_future  = (ARGV[1] || default_days_in_future ).to_i
-max_days_unused = (ARGV[2] || default_max_days_unused).to_i
+default_hours_in_future  = '0'
+default_max_hours_unused = '24'
+
+hours_in_future  = (ARGV[1] || default_hours_in_future ).to_i
+max_hours_unused = (ARGV[2] || default_max_hours_unused).to_i
 
 options = {
-   days_in_future:days_in_future,
-  max_days_unused:max_days_unused
+   hours_in_future:hours_in_future,
+  max_hours_unused:max_hours_unused
 }
 
 # - - - - - - - - - - - - - - - - -
