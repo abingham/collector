@@ -118,6 +118,16 @@ class RunnerVolumeCollectorTest < MiniTest::Test
 
   # - - - - - - - - - - - - - - - - - - - -
 
+  def test_listing_volumes_shows_their_age
+    @kata_id = '571A086F98'
+    volume.create
+    volume.start_avatar
+    list(2)
+    assert listed?(2)
+  end
+
+  # - - - - - - - - - - - - - - - - - - - -
+
   def test_an_exited_kata_container_is_collected
     @kata_id = '3801A8B477'
     name = 'cyber_dojo_kata_container_runner_' + @kata_id
@@ -142,9 +152,26 @@ class RunnerVolumeCollectorTest < MiniTest::Test
 
   private
 
+  def list(days_in_future)
+    shell_cmd = [
+      'ruby',
+      '/home/runner_volume_collector.rb',
+      'list',
+      days_in_future
+    ].join(space)
+    @log = assert_docker_exec(shell_cmd)
+  end
+
+  def listed?(days_in_future)
+    @log.include?("#{@volume.name} #{days_in_future}")
+  end
+
   def collect(days_in_future)
-    shell_cmd =
-      "/home/run-as-cron /etc/periodic/daily/collect_runner_volumes.sh #{days_in_future}"
+    shell_cmd = [
+      '/home/run-as-cron',
+      '/etc/periodic/daily/collect_runner_volumes.sh',
+      days_in_future
+    ].join(space)
     @log = assert_docker_exec(shell_cmd)
   end
 
@@ -182,8 +209,12 @@ class RunnerVolumeCollectorTest < MiniTest::Test
         '--volume /var/run/docker.sock:/var/run/docker.sock',
         'cyberdojo/collector',
         "sh -c '#{shell_cmd}'"
-    ].join(space = ' ')
+    ].join(space)
     assert_exec cmd
+  end
+
+  def space
+    ' '
   end
 
   include AssertExec

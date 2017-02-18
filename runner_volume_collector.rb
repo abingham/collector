@@ -11,11 +11,21 @@ class RunnerVolumeCollector
     @volume_pattern = volume_pattern
   end
 
+  def list(options = {})
+    days_in_future  = options[:days_in_future ] || 0
+    max_days_unused = options[:max_days_unused] || 7
+    volumes.each do |volume|
+      days_unused = volume.days_unused(days_in_future)
+      puts "#{volume.name} #{days_unused} day(s) unused"
+    end
+  end
+
   def collect(options = {})
     days_in_future  = options[:days_in_future ] || 0
     max_days_unused = options[:max_days_unused] || 7
     volumes.each do |volume|
-      if volume.days_unused(days_in_future) >= max_days_unused
+      days_unused = volume.days_unused(days_in_future)
+      if days_unused >= max_days_unused
         puts volume.name
         volume.remove
       end
@@ -48,6 +58,34 @@ end
 
 # - - - - - - - - - - - - - - - - -
 
+def volume_patterns
+  [ 'cyber_dojo_kata_container_runner',
+    'cyber_dojo_kata_volume_runner',
+    'cyber_dojo_avatar_volume_runner_avatar',
+    'cyber_dojo_avatar_volume_runner_kata'
+  ]
+end
+
+# - - - - - - - - - - - - - - - - -
+
+default_days_in_future  = '0'
+default_max_days_unused = '7'
+days_in_future  = (ARGV[1] || default_days_in_future ).to_i
+max_days_unused = (ARGV[2] || default_max_days_unused).to_i
+
+options = {
+   days_in_future:days_in_future,
+  max_days_unused:max_days_unused
+}
+
+# - - - - - - - - - - - - - - - - -
+
+if ARGV[0] == 'list'
+  volume_patterns.each do |pattern|
+    RunnerVolumeCollector.new(pattern).list(options)
+  end
+end
+
 if ARGV[0] == 'collect'
   # first collect all exited runner containers
   pids = `docker ps --all --quiet --filter 'name=cyber_dojo_kata_container_runner_' --filter 'status=exited'`
@@ -55,21 +93,7 @@ if ARGV[0] == 'collect'
     `docker rm #{pids}`
   end
   # then collect all runner volumes not used in last 7 days
-  default_days_in_future  = '0'
-  default_max_days_unused = '7'
-  days_in_future  = (ARGV[1] || default_days_in_future ).to_i
-  max_days_unused = (ARGV[2] || default_max_days_unused).to_i
-  options = {
-     days_in_future:days_in_future,
-    max_days_unused:max_days_unused
-  }
-  # collect volumes from all runners
-  [ 'cyber_dojo_kata_container_runner',
-    'cyber_dojo_kata_volume_runner',
-    'cyber_dojo_avatar_volume_runner_avatar',
-    'cyber_dojo_avatar_volume_runner_kata'
-  ].each do |pattern|
+  volume_patterns.each do |pattern|
     RunnerVolumeCollector.new(pattern).collect(options)
   end
-
 end
