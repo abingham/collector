@@ -1,8 +1,8 @@
 require_relative 'assert_exec'
 require_relative 'runner_volume'
 
-# Collects volumes created by
-# cyberdojo/runner docker container.
+# Collects docker container and volumes
+# created by cyberdojo/runners.
 
 class RunnerVolumeCollector
 

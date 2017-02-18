@@ -1,2 +1,2 @@
 #!/bin/sh
-ruby runner_volume_collector.rb collect ${1} ${2}
+ruby /home/runner_volume_collector.rb collect ${1} ${2}

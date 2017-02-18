@@ -143,8 +143,8 @@ class RunnerVolumeCollectorTest < MiniTest::Test
   private
 
   def collect(days_in_future)
-    shell_cmd = 'cd /home;' +
-      "./run-as-cron /etc/periodic/daily/collect_runner_volumes.sh #{days_in_future}"
+    shell_cmd =
+      "/home/run-as-cron /etc/periodic/daily/collect_runner_volumes.sh #{days_in_future}"
     @log = assert_docker_exec(shell_cmd)
   end
 
