@@ -58,6 +58,19 @@ end
 
 # - - - - - - - - - - - - - - - - -
 
+def options
+  default_hours_in_future  = '0'
+  default_max_hours_unused = '24'
+  hours_in_future  = (ARGV[1] || default_hours_in_future ).to_i
+  max_hours_unused = (ARGV[2] || default_max_hours_unused).to_i
+  {
+    hours_in_future:hours_in_future,
+   max_hours_unused:max_hours_unused
+  }
+end
+
+# - - - - - - - - - - - - - - - - -
+
 def volume_patterns
   [ 'cyber_dojo_kata_container_runner',
     'cyber_dojo_kata_volume_runner',
@@ -65,19 +78,6 @@ def volume_patterns
     'cyber_dojo_avatar_volume_runner_kata'
   ]
 end
-
-# - - - - - - - - - - - - - - - - -
-
-default_hours_in_future  = '0'
-default_max_hours_unused = '24'
-
-hours_in_future  = (ARGV[1] || default_hours_in_future ).to_i
-max_hours_unused = (ARGV[2] || default_max_hours_unused).to_i
-
-options = {
-   hours_in_future:hours_in_future,
-  max_hours_unused:max_hours_unused
-}
 
 # - - - - - - - - - - - - - - - - -
 
@@ -93,7 +93,7 @@ if ARGV[0] == 'collect'
   if pids != ''
     `docker rm #{pids}`
   end
-  # then collect all runner volumes not used in last 7 days
+  # then collect all runner volumes not used in last 24 hours
   volume_patterns.each do |pattern|
     RunnerVolumeCollector.new(pattern).collect(options)
   end
