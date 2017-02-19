@@ -48,7 +48,7 @@ class RunnerVolume
     most_recent = Time.at(max_sse)             # eg 2017-01-18T21:29:24+00:00
     secs_in_future = hours_in_future * 60 * 60 # eg 986400
     future = Time.now + secs_in_future         # eg 2017-01-30T08:28:58+00:00
-    (future.to_i - most_recent.to_i) / 60 / 60 # eg 274 (11 days)
+    (future.to_i - most_recent.to_i) / 60 / 60 # eg 274 hours (11 days)
   end
 
   private
