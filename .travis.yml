@@ -7,4 +7,4 @@ before_script:
     - chmod +x push_and_trigger.sh
 
 script:
-    - ./pipe_build_test.sh && ./push_and_trigger.sh
+    - ./pipe_build_up_test.sh && ./push_and_trigger.sh
