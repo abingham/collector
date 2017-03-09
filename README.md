@@ -1,5 +1,7 @@
 
-If you're a developer wanting to build your own cyber-dojo server from source [start here](https://github.com/cyber-dojo/cyber-dojo/tree/master/dev).
+[Take me to the cyber-dojo home page](https://github.com/cyber-dojo/cyber-dojo).
+
+- - - -
 
 # cyberdojo/collector docker image
 
