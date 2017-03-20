@@ -74,8 +74,6 @@ end
 def volume_patterns
   [ 'cyber_dojo_kata_container_runner',
     'cyber_dojo_kata_volume_runner',
-    'cyber_dojo_avatar_volume_runner_avatar',
-    'cyber_dojo_avatar_volume_runner_kata'
   ]
 end
 
