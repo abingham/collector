@@ -1,0 +1,47 @@
+FROM  docker:latest
+LABEL maintainer=jon@jaggersoft.com
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# 1. install ruby
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+RUN apk --update --no-cache add \
+    openssl ca-certificates \
+    ruby ruby-io-console ruby-dev ruby-irb ruby-bundler ruby-bigdecimal \
+    bash tzdata
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# 2. install tini (for pid 1 zombie reaping)
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# https://github.com/krallin/tini
+# https://blog.phusion.nl/2015/01/20/
+#    docker-and-the-pid-1-zombie-reaping-problem/
+
+RUN apk add --update --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ tini
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# 3. install minitest
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+RUN echo 'gem: --no-document' > ~/.gemrc
+COPY Gemfile /app/
+WORKDIR /app
+RUN bundle install && gem clean
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# 4. install collector
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+COPY collect_runner_volumes   /etc/periodic/hourly/
+
+COPY runner_volume_collector.rb /home
+COPY runner_volume.rb           /home
+COPY assert_exec.rb             /home
+# For testing
+COPY cron-env    /home
+COPY run-as-cron /home
+
+# -f    foreground
+# -d 8  log to stderr, log level 8 (default)
+ENTRYPOINT [ "/sbin/tini", "--" ]
+CMD [ "crond", "-f", "-d", "8" ]
