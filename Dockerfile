@@ -9,8 +9,6 @@ RUN apk --update --no-cache add \
     ruby ruby-io-console ruby-dev ruby-irb ruby-bundler ruby-bigdecimal \
     bash tzdata
 
-#RUN adduser -D -H -u 19661 cyber-dojo
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # install tini (for pid 1 zombie reaping)
 # https://github.com/krallin/tini
