@@ -8,3 +8,5 @@ services:
     volumes: [ '/var/run/docker.sock:/var/run/docker.sock' ]
     build:
       context: .
+      args:
+        DOCKER_ENGINE_VERSION: 1.12.3
