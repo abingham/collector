@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-my_dir="$( cd "$( dirname "${0}" )" && pwd )"
+readonly SH_DIR="$( cd "$( dirname "${0}" )" && pwd )/sh"
 
-${my_dir}/build.sh
-${my_dir}/test.sh
+${SH_DIR}/build_docker_images.sh
+${SH_DIR}/test.sh
