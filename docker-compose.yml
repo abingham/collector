@@ -11,3 +11,4 @@ services:
       context: .
       args:
         DOCKER_ENGINE_VERSION: 1.12.3
+        SHA: ${SHA}

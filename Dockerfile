@@ -59,6 +59,13 @@ RUN apk --update add curl \
   && rm docker-${DOCKER_ENGINE_VERSION}.tgz \
   && apk del curl
 
+# - - - - - - - - - - - - - - - - -
+# git commit sha image is built from
+# - - - - - - - - - - - - - - - - -
+
+ARG SHA
+RUN echo ${SHA} > /home/sha.txt
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # setup cron
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
