@@ -1,9 +1,10 @@
 
-version: '2'
+version: '2.2'
 
 services:
   collector:
     image: cyberdojo/collector
+    init: true
     container_name: collector-server
     volumes: [ '/var/run/docker.sock:/var/run/docker.sock' ]
     build:

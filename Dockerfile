@@ -10,12 +10,6 @@ RUN apk --update --no-cache add \
     bash tzdata
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# install tini (for pid 1 zombie reaping)
-# https://github.com/krallin/tini
-
-RUN apk add --update --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ tini
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # install docker-client
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Launching a docker app (that itself uses docker) is
@@ -78,7 +72,6 @@ COPY assert_exec.rb             /home
 COPY cron-env    /home
 COPY run-as-cron /home
 
-ENTRYPOINT [ "/sbin/tini", "--" ]
 # -f    foreground
 # -d 8  log to stderr, log level 8 (default)
 CMD [ "crond", "-f", "-d", "8" ]
